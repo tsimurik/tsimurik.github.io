@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Товар — Магазин</title>
+  <link rel="stylesheet" href="product.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="product-page">
+    <a class="product-back" href="index.html">← В магазин</a>
+
+    <div class="product-hero">
+      <img id="product-image" src="" alt="" width="900" height="560" />
+    </div>
+
+    <main class="product-main">
+      <h1 class="product-title" id="product-title">Товар</h1>
+      <p class="product-subtitle" id="product-subtitle"></p>
+
+      <div class="product-price-block">
+        <div class="product-price-label">Цена в мтбанках</div>
+        <p class="product-price">
+          <span id="product-price-digits" class="product-price__digits">0</span>
+          <span class="product-price__glyph" aria-hidden="true">
+            <svg class="balance-card__svg" viewBox="0 0 24 24" focusable="false">
+              <circle cx="12" cy="12" r="9.5" fill="#ffe082" stroke="rgba(245, 127, 23, 0.45)" stroke-width="1.25" />
+              <circle cx="12" cy="12" r="6.5" fill="#ffca28" stroke="#f57f17" stroke-width="0.75" />
+              <ellipse cx="12" cy="9" rx="5" ry="2.2" fill="rgba(255, 255, 255, 0.4)" />
+            </svg>
+          </span>
+          <span class="product-price__unit">мтбанков</span>
+        </p>
+      </div>
+
+      <div class="product-description-block">
+        <p class="product-description" id="product-description"></p>
+      </div>
+
+      <button type="button" class="btn-buy" id="btn-buy">Купить</button>
+      <p class="buy-toast" id="buy-toast" role="status"></p>
+    </main>
+  </div>
+
+  <script src="product.js" defer></script>
+</body>
+</html>

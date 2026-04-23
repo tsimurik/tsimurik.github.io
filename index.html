@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>MTBank Strategy</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- Экран регистрации -->
+  <div id="screen-register" class="screen screen--center">
+    <div class="card card--form">
+      <h1 class="card__title">Создать аккаунт</h1>
+      <form id="form-register" class="form" novalidate>
+        <div class="field">
+          <span class="field__label">Ваш id</span>
+          <p class="field__readonly" id="register-preview-id" aria-live="polite">—</p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="inviter-referral">Реферальный код пригласившего (необязательно)</label>
+          <input
+            class="field__input"
+            id="inviter-referral"
+            name="inviterReferral"
+            type="text"
+            autocomplete="off"
+            maxlength="64"
+            placeholder="Код другого пользователя"
+          />
+        </div>
+        <div class="field">
+          <label class="field__label" for="nickname">Никнейм</label>
+          <input
+            class="field__input"
+            id="nickname"
+            name="nickname"
+            type="text"
+            autocomplete="username"
+            required
+            minlength="2"
+            maxlength="32"
+            placeholder="Уникальное имя"
+          />
+          <p class="field__hint" id="nickname-error" hidden></p>
+        </div>
+        <button type="submit" class="btn btn--pill">Зарегистрироваться</button>
+      </form>
+      <p class="auth-switch">
+        Уже есть аккаунт? <a href="#" id="show-login" class="auth-link">Войти</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Экран входа -->
+  <div id="screen-login" class="screen screen--center" hidden>
+    <div class="card card--form">
+      <h1 class="card__title">Вход в аккаунт</h1>
+      <form id="form-login" class="form" novalidate>
+        <div class="field">
+          <label class="field__label" for="login-id">Ваш ID</label>
+          <input
+            class="field__input"
+            id="login-id"
+            name="loginId"
+            type="text"
+            autocomplete="off"
+            required
+            placeholder="Введите ваш ID"
+          />
+        </div>
+        <div class="field">
+          <label class="field__label" for="login-nickname">Никнейм</label>
+          <input
+            class="field__input"
+            id="login-nickname"
+            name="loginNickname"
+            type="text"
+            autocomplete="username"
+            required
+            placeholder="Введите ваш никнейм"
+          />
+          <p class="field__hint" id="login-error" hidden></p>
+        </div>
+        <button type="submit" class="btn btn--pill">Войти</button>
+      </form>
+      <p class="auth-switch">
+        Нет аккаунта? <a href="#" id="show-register" class="auth-link">Зарегистрироваться</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Основное приложение -->
+  <div id="screen-app" class="screen screen--app is-hidden" hidden>
+    <main class="app-main">
+      <section id="panel-leaderboard" class="panel" data-panel="leaderboard">
+        <div class="card card--panel leaderboard-card">
+          <h2 class="panel__title">🏆 Лидерборд</h2>
+          <p class="leaderboard-subtitle">Рейтинг игроков Город МТ</p>
+          
+          <div class="leaderboard-table">
+            <div class="leaderboard-header">
+              <div class="leaderboard-rank">#</div>
+              <div class="leaderboard-player">Игрок</div>
+              <div class="leaderboard-level">Уровень</div>
+              <div class="leaderboard-score">⭐ Очки</div>
+            </div>
+            
+            <div class="leaderboard-body" id="leaderboard-body">
+              <div class="leaderboard-empty">
+                <span class="leaderboard-empty-icon">📊</span>
+                <p>Таблица лидеров скоро пополнится</p>
+                <span class="leaderboard-empty-hint">Станьте первым в рейтинге!</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="leaderboard-footer">
+            <p class="leaderboard-note">✨ Рейтинг обновляется ежедневно</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="panel-game" class="panel" data-panel="game">
+        <!-- Содержимое создаётся динамически в app.js -->
+      </section>
+      
+      <section id="panel-tasks" class="panel" data-panel="tasks">
+        <div class="card card--panel tasks-card">
+          <h2 class="panel__title">📋 Задания</h2>
+          
+          <div class="tasks-tabs">
+            <button class="tasks-tab tasks-tab--active" data-tasks-tab="once">🎯 Разовые</button>
+            <button class="tasks-tab" data-tasks-tab="monthly">📅 Ежемесячные</button>
+            <button class="tasks-tab" data-tasks-tab="seasonal">🌸 Сезонные</button>
+          </div>
+          
+          <div class="tasks-content tasks-content--active" id="tasks-once">
+            <div class="tasks-list" id="tasks-list-once"></div>
+          </div>
+          
+          <div class="tasks-content" id="tasks-monthly">
+            <div class="tasks-list" id="tasks-list-monthly"></div>
+          </div>
+          
+          <div class="tasks-content" id="tasks-seasonal">
+            <div class="tasks-list" id="tasks-list-seasonal"></div>
+          </div>
+          
+          <div class="calendar-section">
+            <div class="calendar-header">
+              <h3 class="calendar-title">📅 Ежедневный календарь</h3>
+              <div class="calendar-streak">
+                <div class="streak-flame">🔥</div>
+                <div class="streak-count" id="streak-count">0</div>
+                <div class="streak-label">дней подряд</div>
+              </div>
+            </div>
+            
+            <div class="calendar-grid" id="calendar-grid"></div>
+          </div>
+        </div>
+      </section>
+      
+      <section id="panel-shop" class="panel" data-panel="shop">
+        <div class="shop-page">
+          <div class="shop-header">
+            <h2 class="panel__title shop-page__title">🛒 Магазин</h2>
+          </div>
+          
+          <div class="shop-grid" role="list">
+  <!-- Купон в Green (50 рублей) -->
+  <a class="shop-item" role="listitem" href="product.html?p=green">
+    <div class="shop-item__inner">
+      <div class="shop-item__visual shop-item__visual--green" aria-hidden="true">
+        <img src="images/green.png" alt="Купон в Green" style="width:100%; height:100%; object-fit:cover;">
+      </div>
+      <div class="shop-item__hover">
+        <p class="shop-item__name">Купон в Green</p>
+        <p class="shop-item__desc">Скидочный купон на 50 рублей в продуктовом магазине Green</p>
+      </div>
+    </div>
+  </a>
+  
+  <!-- Сертификат в OZ.by (25 рублей) -->
+  <a class="shop-item" role="listitem" href="product.html?p=ozby">
+    <div class="shop-item__inner">
+      <div class="shop-item__visual shop-item__visual--ozby" aria-hidden="true">
+        <img src="images/oz.png" alt="Сертификат OZ.by" style="width:100%; height:100%; object-fit:cover;">
+      </div>
+      <div class="shop-item__hover">
+        <p class="shop-item__name">Сертификат OZ.by</p>
+        <p class="shop-item__desc">Сертификат на 25 рублей в магазине книг и канцелярии</p>
+      </div>
+    </div>
+  </a>
+  
+  <!-- Опция "Кактус" на 1 месяц -->
+  <a class="shop-item" role="listitem" href="product.html?p=cactus">
+    <div class="shop-item__inner">
+      <div class="shop-item__visual shop-item__visual--cactus" aria-hidden="true">
+        <img src="images/kaktus.jpg" alt="Опция Кактус" style="width:100%; height:100%; object-fit:cover;">
+      </div>
+      <div class="shop-item__hover">
+        <p class="shop-item__name">Опция "Кактус"</p>
+        <p class="shop-item__desc">Дополнительная опция по карте на 1 месяц</p>
+      </div>
+    </div>
+  </a>
+  
+  <!-- Сертификат в Золотое Яблоко -->
+  <a class="shop-item" role="listitem" href="product.html?p=apple">
+    <div class="shop-item__inner">
+      <div class="shop-item__visual shop-item__visual--apple" aria-hidden="true">
+        <img src="images/greenapple.png" alt="Сертификат в Золотое Яблоко" style="width:100%; height:100%; object-fit:cover;">
+      </div>
+      <div class="shop-item__hover">
+        <p class="shop-item__name">Сертификат в Золотое Яблоко</p>
+        <p class="shop-item__desc">Подарочная карта на покупки в сети техники и аксессуаров</p>
+      </div>
+    </div>
+  </a>
+  
+  <!-- Сертификат в 21vek.by (100 рублей) -->
+  <a class="shop-item" role="listitem" href="product.html?p=21vek">
+    <div class="shop-item__inner">
+      <div class="shop-item__visual shop-item__visual--21vek" aria-hidden="true">
+        <img src="images/21vek.jpg" alt="Сертификат 21vek.by" style="width:100%; height:100%; object-fit:cover;">
+      </div>
+      <div class="shop-item__hover">
+        <p class="shop-item__name">Сертификат 21vek.by</p>
+        <p class="shop-item__desc">Сертификат на 100 рублей в интернет-магазине электроники</p>
+      </div>
+    </div>
+  </a>
+</div>
+          
+          <div class="vouchers-section">
+            <div class="vouchers-header">
+              <h3 class="vouchers-title">🎫 Ваучеры</h3>
+            </div>
+            <div class="vouchers-grid">
+              <div class="voucher-item" id="voucher-discount">
+                <div class="voucher-item__visual">
+                  <svg class="voucher-svg" viewBox="0 0 120 120" fill="none">
+                    <rect x="20" y="30" width="80" height="60" rx="8" fill="#e0e0e0" stroke="#bdbdbd" stroke-width="1.5" />
+                    <rect x="20" y="30" width="80" height="18" rx="8" fill="#9e9e9e" />
+                    <text x="60" y="43" font-size="9" fill="#FFF" font-family="sans-serif" text-anchor="middle" font-weight="bold">СКИДКА</text>
+                    <text x="60" y="65" font-size="16" fill="#757575" font-family="sans-serif" text-anchor="middle" font-weight="bold">-5%</text>
+                    <text x="60" y="80" font-size="6" fill="#9e9e9e" font-family="sans-serif" text-anchor="middle">на постройку</text>
+                  </svg>
+                </div>
+                <div class="voucher-item__info">
+                  <p class="voucher-item__name">Ваучер на скидку 5%</p>
+                  <p class="voucher-item__desc">Скидка 5% на постройку любого здания</p>
+                  <p class="voucher-item__price">💰 500 MTBank Tokens</p>
+                </div>
+                <button class="voucher-item__btn" id="buy-voucher-btn">Купить</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <section id="panel-profile" class="panel" data-panel="profile">
+        <div class="profile-page">
+          <div class="profile-balances">
+            <div class="card balance-card">
+              <span class="balance-card__label">Баланс очков прокачки</span>
+              <p class="balance-card__value">
+                <span id="profile-balance-skill" class="balance-card__digits">00000000</span>
+                <span class="balance-card__glyph" aria-hidden="true">
+                  <svg class="balance-card__svg" viewBox="0 0 24 24" focusable="false">
+                    <path
+                      fill="currentColor"
+                      fill-rule="evenodd"
+                      d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
+                    />
+                  </svg>
+                </span>
+              </p>
+            </div>
+            <div class="card balance-card">
+              <span class="balance-card__label">Баланс мтбанков</span>
+              <p class="balance-card__value">
+                <span id="profile-balance-mtb" class="balance-card__digits">00000000</span>
+                <span class="balance-card__glyph" aria-hidden="true">
+                  <svg class="balance-card__svg" viewBox="0 0 24 24" focusable="false">
+                    <circle cx="12" cy="12" r="9.5" fill="#ffe082" stroke="rgba(255,255,255,0.55)" stroke-width="1.25" />
+                    <circle cx="12" cy="12" r="6.5" fill="#ffca28" stroke="#f57f17" stroke-width="0.75" />
+                    <ellipse cx="12" cy="9" rx="5" ry="2.2" fill="rgba(255,255,255,0.35)" />
+                  </svg>
+                </span>
+              </p>
+            </div>
+          </div>
+          <div class="card card--panel card--profile">
+            <h2 class="panel__title">Профиль</h2>
+            <div class="profile-grid">
+              <div class="profile-item">
+                <span class="profile-item__label">Ваш id</span>
+                <p class="profile-item__value" id="profile-id">—</p>
+              </div>
+              <div class="profile-item">
+                <span class="profile-item__label">Никнейм</span>
+                <p class="profile-item__value" id="profile-nickname">—</p>
+              </div>
+              <div class="profile-item profile-item--full">
+                <span class="profile-item__label">Реферальный код пригласившего</span>
+                <p class="profile-item__value" id="profile-inviter-code">—</p>
+              </div>
+              <div class="profile-item">
+                <span class="profile-item__label">Ваш реферальный код</span>
+                <p class="profile-item__value" id="profile-referral-code">—</p>
+              </div>
+              <div class="profile-item profile-item--full">
+                <span class="profile-item__label">Ваша реферальная ссылка</span>
+                <button
+                  type="button"
+                  class="link-copy"
+                  id="btn-copy-referral-link"
+                  aria-label="Скопировать реферальную ссылку"
+                >
+                  <span class="link-copy__text profile-item__value profile-item__value--break" id="profile-referral-link">—</span>
+                  <span class="link-copy__hint">Нажмите, чтобы скопировать</span>
+                </button>
+                <p class="copy-toast" id="copy-toast" hidden aria-live="polite">Скопировано</p>
+              </div>
+              <!-- Промокод -->
+<div class="profile-item profile-item--full">
+  <span class="profile-item__label">Промокод</span>
+  <div class="promo-input-group">
+    <input type="text" id="promo-code-input" class="promo-input" placeholder="Введите промокод" maxlength="50" autocomplete="off">
+    <button type="button" class="btn btn--pill promo-check-btn" id="btn-check-promo">Проверить</button>
+  </div>
+</div>
+              <div class="profile-item profile-item--full">
+                <span class="profile-item__label">Добавить очки прокачки</span>
+                <div class="skill-input-group">
+                  <input type="number" id="skill-add-amount" class="skill-input" placeholder="Количество" value="100" min="1" step="100">
+                  <button type="button" class="btn btn--pill skill-add-btn" id="btn-add-skill">➕ Добавить</button>
+                </div>
+              </div>
+              <div class="profile-item profile-item--full">
+                <button type="button" class="btn btn--pill btn--logout" id="btn-logout">Выйти из аккаунта</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav id="bottom-nav" class="bottom-nav" aria-label="Основная навигация">
+      <button type="button" class="bottom-nav__tab" data-tab="leaderboard">
+        <span class="bottom-nav__icon" aria-hidden="true">🏆</span>
+        <span class="bottom-nav__text">Лидерборд</span>
+      </button>
+      <button type="button" class="bottom-nav__tab" data-tab="game" aria-current="page">
+        <span class="bottom-nav__icon" aria-hidden="true">🎮</span>
+        <span class="bottom-nav__text">Город МТ</span>
+      </button>
+      <button type="button" class="bottom-nav__tab" data-tab="tasks">
+        <span class="bottom-nav__icon" aria-hidden="true">📋</span>
+        <span class="bottom-nav__text">Задания</span>
+      </button>
+      <button type="button" class="bottom-nav__tab" data-tab="shop">
+        <span class="bottom-nav__icon" aria-hidden="true">🛒</span>
+        <span class="bottom-nav__text">Магазин</span>
+      </button>
+      <button type="button" class="bottom-nav__tab" data-tab="profile">
+        <span class="bottom-nav__icon" aria-hidden="true">👤</span>
+        <span class="bottom-nav__text">Профиль</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Модальное окно выбора здания -->
+  <div class="build-modal" id="build-modal" hidden>
+    <div class="build-modal__overlay"></div>
+    <div class="build-modal__content">
+      <h3 class="build-modal__title">Выберите здание</h3>
+      <div class="build-options" id="build-options"></div>
+      <button class="build-modal__close" id="build-modal-close">Закрыть</button>
+    </div>
+  </div>
+
+  <!-- Модальное окно информации о здании -->
+  <div class="info-modal" id="info-modal" hidden>
+    <div class="info-modal__overlay"></div>
+    <div class="info-modal__content">
+      <button class="info-modal__close" id="info-modal-close">✕</button>
+      <div class="info-modal__icon" id="info-icon" style="width:80px; height:80px; margin:0 auto;"></div>
+      <h3 class="info-modal__title" id="info-title">Название</h3>
+      <div class="info-modal__stats">
+        <div class="info-stat">
+          <span class="info-stat__label">📊 Тип:</span>
+          <span class="info-stat__value" id="info-type">—</span>
+        </div>
+        <div class="info-stat">
+          <span class="info-stat__label">⭐ Уровень:</span>
+          <span class="info-stat__value" id="info-level">1</span>
+        </div>
+        <div class="info-stat">
+          <span class="info-stat__label">💰 Доход/час:</span>
+          <span class="info-stat__value" id="info-income">0</span>
+        </div>
+        <div class="info-stat">
+          <span class="info-stat__label">💎 Накоплено:</span>
+          <span class="info-stat__value" id="info-pending">0</span>
+        </div>
+        <div class="info-stat">
+          <span class="info-stat__label">⬆️ Стоимость апгрейда:</span>
+          <span class="info-stat__value" id="info-upgrade-cost">0</span>
+        </div>
+        <div class="info-stat">
+          <span class="info-stat__label">💰 Цена продажи:</span>
+          <span class="info-stat__value" id="info-sell-value">0</span>
+        </div>
+      </div>
+      <div class="info-modal__actions">
+        <button class="info-btn info-btn--collect" id="info-collect-btn">💰 Забрать доход</button>
+        <button class="info-btn info-btn--upgrade" id="info-upgrade-btn">⬆️ Улучшить</button>
+        <button class="info-btn info-btn--sell" id="info-sell-btn">💰 Продать (-50%)</button>
+      </div>
+    </div>
+  </div>
+
+ <!-- Модальное окно "Как играть?" -->
+<!-- Модальное окно "Как играть?" -->
+<div class="help-modal" id="help-modal" hidden>
+  <div class="help-modal__overlay"></div>
+  <div class="help-modal__content">
+    <button class="help-modal__close" id="help-modal-close">✕</button>
+    <h3 class="help-modal__title">🎮 Как играть в Город МТ?</h3>
+    <div class="help-modal__body">
+      <div class="help-section">
+        <h4>🏗️ Строительство</h4>
+        <p>Нажимайте на свободные клетки поля и выбирайте бизнес для постройки. Каждый бизнес приносит пассивный доход в MTBank Tokens.</p>
+      </div>
+      <div class="help-section">
+        <h4>⭐ Очки прокачки</h4>
+        <p>Очки прокачки тратятся на покупку и улучшение бизнесов. Вы можете получить их:</p>
+        <ul>
+          <li>✅ За выполнение заданий (раздел "Задания")</li>
+          <li>✅ За регистрацию по реферальному коду (+1000 ⭐)</li>
+          <li>✅ За ежедневный календарь</li>
+        </ul>
+      </div>
+      <div class="help-section">
+        <h4>💰 MTBank Tokens</h4>
+        <p>Токены зарабатываются с ваших бизнесов. Их можно тратить на специальные предложения от МТБанка в разделе "Магазин".</p>
+      </div>
+      <div class="help-section">
+        <h4>⬆️ Улучшение бизнеса</h4>
+        <p>Нажмите на построенное здание → выберите "Улучшить". Доход бизнеса увеличится, но стоимость следующего улучшения растёт.</p>
+      </div>
+      <div class="help-section">
+        <h4>💰 Продажа бизнеса</h4>
+        <p>Нажмите на здание → "Продать (-50%)" - вы получите обратно 50% от потраченных очков прокачки.</p>
+      </div>
+      <div class="help-section">
+        <h4>📈 Цены на строительство</h4>
+        <p>Каждый новый бизнес дороже предыдущего на 10%. Планируйте свою стратегию развития!</p>
+      </div>
+      <div class="help-section">
+        <h4>🏦 МТБанк</h4>
+        <p>Центральное здание на поле. Повышайте его уровень, выполняя действия в игре, чтобы открывать доступ к элитным бизнесам.</p>
+      </div>
+      <div class="help-section">
+        <h4>🔧 Режимы игры</h4>
+        <p>Используйте кнопку с <strong>молотком и гаечным ключом (🛠️)</strong> для переключения между режимами:</p>
+        <ul>
+          <li><strong>🔨 Режим строительства</strong> — можно строить новые здания на пустых клетках</li>
+          <li><strong>👁️ Режим просмотра</strong> — можно управлять зданиями, но нельзя строить новые</li>
+        </ul>
+      </div>
+      <div class="help-section">
+        <h4>⚡ Энергия города</h4>
+        <p>Совершайте операции по карте МТБанк, чтобы город функционировал — один платёж или перевод на сумму от 100 рублей заряжает город энергией на <strong>1 заряд</strong> (истекает через 3 дня). В запасе можно держать до <strong>6 зарядов</strong> (18 дней).</p>
+        <p style="margin-top:8px;">📊 <strong>6 белых полосок</strong> в правой части экрана — это индикатор энергии города. Каждая полоска соответствует одному заряду. Чем больше зарядов, тем ярче и полнее индикатор, показывая, что ваш город обеспечен электричеством и работает на полную мощность!</p>
+      </div>
+    </div>
+    <button class="help-modal__ok" id="help-modal-ok">Понятно!</button>
+  </div>
+</div>
+
+  <!-- Уведомления -->
+  <div class="buy-toast" id="buy-toast"></div>
+
+  <!-- Модальное окно МТБанк -->
+  <div class="mtbank-modal" id="mtbank-modal" hidden>
+    <div class="mtbank-modal__overlay"></div>
+    <div class="mtbank-modal__content">
+      <button class="mtbank-modal__close" id="mtbank-modal-close">✕</button>
+      
+      <div class="mtbank-modal__icon" id="mtbank-modal-icon">
+        <img src="assets/sprites/buildings/bank.png" alt="МТБанк" style="width:100px; height:100px; object-fit:contain;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+        <div style="display:none; font-size:64px; text-align:center;">🏦</div>
+      </div>
+      
+      <h3 class="mtbank-modal__title">МТБанк</h3>
+      <p class="mtbank-modal__subtitle">Главный банк города</p>
+      
+      <div class="mtbank-level">
+        <div class="mtbank-level__header">
+          <span class="mtbank-level__label">⭐ Уровень банка</span>
+          <span class="mtbank-level__value" id="mtbank-level">1</span>
+        </div>
+        <div class="mtbank-level__progress">
+          <div class="mtbank-level__progress-bar" id="mtbank-progress-bar" style="width: 0%"></div>
+        </div>
+        <div class="mtbank-level__count" id="mtbank-level-count">0 / 100</div>
+      </div>
+      
+      <div class="mtbank-credit-section">
+        <div class="mtbank-section-title">💳 Кредитование</div>
+        <div class="mtbank-action">
+          <p>Максимальная сумма: <span id="mtbank-max-credit">250</span> ⭐</p>
+          <div class="mtbank-action__controls">
+            <input type="number" id="credit-amount" class="mtbank-input" placeholder="Сумма кредита" value="100" min="1">
+            <button class="mtbank-btn mtbank-btn--credit" id="credit-btn">Взять кредит</button>
+          </div>
+        </div>
+        
+        <div class="mtbank-debt-info">
+          <p>💸 Текущий долг: <span id="mtbank-credit-debt">0</span> ⭐</p>
+          <p>💰 Сумма погашения: <span id="mtbank-repay-amount">0</span> ⭐ (в 1.7 раза больше)</p>
+          <button class="mtbank-btn mtbank-btn--repay" id="repay-credit-btn" disabled>Погасить кредит</button>
+        </div>
+      </div>
+      
+      <div class="mtbank-deposit-section">
+        <div class="mtbank-section-title">📈 Вклады</div>
+        <div class="mtbank-action">
+          <div class="mtbank-action__controls">
+            <input type="number" id="deposit-amount" class="mtbank-input" placeholder="Сумма вклада" value="100">
+            <select id="deposit-days" class="mtbank-select">
+              <option value="3">На 3 дня (1.5%)</option>
+              <option value="7">На 7 дней (3%)</option>
+              <option value="14">На 14 дней (4.5%)</option>
+              <option value="30">На 30 дней (6%)</option>
+            </select>
+            <button class="mtbank-btn mtbank-btn--deposit" id="deposit-btn">Оформить вклад</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mtbank-deposits">
+        <div class="mtbank-section-title">📋 Активные вклады</div>
+        <div id="deposits-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно задания -->
+  <div class="task-modal" id="task-modal" hidden>
+    <div class="task-modal__overlay"></div>
+    <div class="task-modal__content">
+      <button class="task-modal__close" id="task-modal-close">✕</button>
+      <h3 class="task-modal__title" id="task-modal-title">Название задания</h3>
+      <p class="task-modal__desc" id="task-modal-desc">Описание задания</p>
+      <div class="task-modal__reward" id="task-modal-reward">⭐ 0</div>
+      <div id="task-modal-input-container">
+        <input type="text" class="task-modal__input" id="task-modal-input" placeholder="Введите данные">
+      </div>
+      <button class="task-modal__btn" id="task-modal-confirm">Получить награду</button>
+    </div>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
